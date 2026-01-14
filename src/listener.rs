@@ -1,13 +1,21 @@
 use anyhow::Result;
 use futures::StreamExt;
+use solana_client::nonblocking::rpc_client::RpcClient;
 use solana_client::pubsub_client::PubsubClient;
 use solana_client::rpc_config::{
     CommitmentConfig, RpcTransactionLogsConfig, RpcTransactionLogsFilter,
 };
 
+use crate::processor;
+
 const RAYDIUM_V4: &str = "675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8";
 
 pub async fn start_listening() -> Result<()> {
+    // Setup - HTTP Client (For fetching full Tx)
+    let http_url = "https://api.mainnet-beta.solana.com/";
+    let rpc_client = RpcClient::new(http_url.to_string());
+
+    // Setup - WebSocket Client (For listening to logs)
     let wss_url = "wss://api.mainnet-beta.solana.com";
     println!("Connection via WSS to {}", wss_url);
 
@@ -24,11 +32,20 @@ pub async fn start_listening() -> Result<()> {
     loop {
         match receiver.recv() {
             Ok(response) => {
-                println!("New Tx: {}", response.value.signature);
-                for log in response.value.logs {
-                    println!("    {}", log);
+                let mut is_swap = false;
+                for log in &response.value.logs {
+                    if log.contains("Instruction: Swap") {
+                        is_swap = true;
+                        break;
+                    }
                 }
-                println!("---------------------------------------------------");
+
+                if is_swap {
+                    println!(" 🔎 Swap detected : {}", response.value.signature);
+
+                    // Trigger the processor
+                    let _ = processor::parse_trade(&rpc_client, &response.value.signature).await;
+                }
             }
             Err(e) => {
                 println!("Disconnected: {}", e);

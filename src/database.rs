@@ -1,4 +1,5 @@
 use anyhow::Result;
+use serde::{Deserialize, Serialize};
 use sqlx::{Pool, Postgres, postgres::PgPoolOptions};
 use std::env;
 
@@ -37,4 +38,13 @@ pub async fn connect() -> Result<DbPool> {
     println!("Schema ensured (Table 'trades' exists)");
 
     Ok(pool)
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct Trade {
+    pub signature: String,
+    pub token_address: String,
+    pub is_buy: bool,
+    pub amount_sol: f64,
+    pub amount_token: f64,
 }
