@@ -3,48 +3,48 @@ use serde::{Deserialize, Serialize};
 use sqlx::{Pool, Postgres, postgres::PgPoolOptions};
 use std::env;
 
-pub type DbPool = Pool<Postgres>;
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct Trade {
+    pub signature: String,
+    pub mint_in: String,
+    pub amount_in: f64,
+    pub mint_out: String,
+    pub amount_out: f64,
+    pub block_time: i64,
+}
 
-pub async fn connect() -> Result<DbPool> {
+pub async fn connect() -> Result<Pool<Postgres>> {
     dotenv::dotenv().ok();
+    let url = env::var("DATABASE_URL").expect("Database url must be set");
 
-    let url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
-
-    println!("Attempting to connect to database...");
+    println!("Connecting to DB (Postgres)...");
 
     let pool = PgPoolOptions::new()
         .max_connections(5)
         .connect(&url)
         .await?;
+    println!("Connected to DB (Postgres) !");
 
-    println!("Connected to Database!");
+    sqlx::query("DROP TABLE IF EXISTS trades")
+        .execute(&pool)
+        .await;
 
     sqlx::query(
         r#"
         CREATE TABLE IF NOT EXISTS trades (
         id SERIAL PRIMARY KEY,
-        block_time BIGINT,
         signature TEXT NOT NULL,
-        token_address TEXT NOT NULL,
-        is_buy BOOLEAN,
-        amount_sol DOUBLE PRECISION,
-        amount_token DOUBLE PRECISION
-        );
+        mint_in TEXT NOT NULL,
+        amount_in DOUBLE PRECISION,
+        mint_out TEXT NOT NULL,
+        amount_out DOUBLE PRECISION,
+        block_time BIGINT
+        )
         "#,
     )
     .execute(&pool)
     .await?;
 
-    println!("Schema ensured (Table 'trades' exists)");
-
+    println!("Schema Setup Complete :)");
     Ok(pool)
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct Trade {
-    pub signature: String,
-    pub token_address: String,
-    pub is_buy: bool,
-    pub amount_sol: f64,
-    pub amount_token: f64,
 }

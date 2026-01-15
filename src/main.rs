@@ -10,8 +10,7 @@ async fn main() -> Result<()> {
 
     println!("Main Database pool established: {:#?}", pool);
 
-    // Start the listener
-    println!("Starting the Spy...");
+    println!("-------- STARTING THE SPY --------");
     listener::start_listening().await?;
 
     Ok(())
