@@ -27,7 +27,7 @@ pub async fn connect() -> Result<Pool<Postgres>> {
 
     sqlx::query("DROP TABLE IF EXISTS trades")
         .execute(&pool)
-        .await;
+        .await?;
 
     sqlx::query(
         r#"
@@ -47,4 +47,25 @@ pub async fn connect() -> Result<Pool<Postgres>> {
 
     println!("Schema Setup Complete :)");
     Ok(pool)
+}
+
+pub async fn add_trade(pool: &Pool<Postgres>, trade: Trade) -> Result<i64> {
+    // Insert generic trade data
+    let rec = sqlx::query!(
+        r#"
+        INSERT INTO trades (signature, mint_in, amount_in, mint_out, amount_out, block_time)
+        VALUES ($1, $2, $3, $4, $5, $6)
+        RETURNING id
+        "#,
+        trade.signature,
+        trade.mint_in,
+        trade.amount_in,
+        trade.mint_out,
+        trade.amount_out,
+        trade.block_time
+    )
+    .fetch_one(pool)
+    .await?;
+
+    Ok(rec.id as i64)
 }
