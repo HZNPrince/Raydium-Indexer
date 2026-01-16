@@ -1,17 +1,17 @@
 use anyhow::Result;
-use futures::StreamExt;
 use solana_client::nonblocking::rpc_client::RpcClient;
 use solana_client::pubsub_client::PubsubClient;
 use solana_client::rpc_config::{
     CommitmentConfig, RpcTransactionLogsConfig, RpcTransactionLogsFilter,
 };
 use sqlx::{Pool, Postgres};
+use teloxide::Bot;
 
-use crate::{database, processor};
+use crate::{database, processor, tgbot};
 
 const RAYDIUM_V4: &str = "675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8";
 
-pub async fn start_listening(pool: Pool<Postgres>) -> Result<()> {
+pub async fn start_listening(pool: Pool<Postgres>, bot: Bot) -> Result<()> {
     // Setup - HTTP Client (For fetching full Tx)
     let http_url = "https://api.mainnet-beta.solana.com/";
     let rpc_client = RpcClient::new(http_url.to_string());
@@ -48,10 +48,13 @@ pub async fn start_listening(pool: Pool<Postgres>) -> Result<()> {
                     match processor::parse_trade(&rpc_client, &response.value.signature).await {
                         Ok(Some(trade)) => {
                             // Call database
-                            match database::add_trade(&pool, trade).await {
+                            match database::add_trade(&pool, trade.clone()).await {
                                 Ok(id) => println!("   ✅ Saved to DB: ID {}", id),
                                 Err(e) => println!("   ❌ DB Error: {}", e),
                             }
+                            // Send ALERT ! using tg-bot
+                            println!("      📲 Sending Tele Alert...");
+                            let _ = tgbot::send_trade_alert(&bot, &trade).await;
                         }
                         Ok(None) => {}
 

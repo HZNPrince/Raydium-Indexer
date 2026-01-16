@@ -6,7 +6,6 @@ use solana_client::rpc_response::OptionSerializer;
 use solana_sdk::signature::Signature;
 use std::collections::HashMap;
 use std::str::FromStr;
-use std::sync::mpsc::channel;
 
 const WSOL: &str = "So11111111111111111111111111111111111111112";
 
