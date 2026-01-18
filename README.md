@@ -20,7 +20,7 @@ A high-performance Rust application that monitors **Raydium V4** swaps on the So
 
 ### Telegram Alert Example
 
-![Telegram Bot Alert](assets/TelegramBot.png)
+<img src="assets/TelegramBot.png" alt="Telegram Bot Alert" width="400"/>
 
 ## 🛠 Tech Stack
 
