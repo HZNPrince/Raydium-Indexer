@@ -1,8 +1,8 @@
-#  🚀 DEX Tracker | Raydium Indexer
+# DEX Tracker
 
 A high-performance Rust application that monitors **Raydium V4** swaps on the Solana blockchain in real-time. It detects trades, parses token balance changes, persists data to **PostgreSQL**, and sends instant alerts via **Telegram**.
 
-## 🏗 Architecture
+## Architecture Overview
 
 ![System Architecture](assets/Architecture.png)
 
@@ -11,7 +11,7 @@ A high-performance Rust application that monitors **Raydium V4** swaps on the So
 - **Database**: Persists trade records.
 - **Telegram**: Broadcasting layer for user alerts.
 
-## ✨ Features
+## Features
 
 - **Real-time Monitoring**: Subscribes to Solana WebSocket logs (`logsSubscribe`) for millisecond-latency swap detection.
 - **Deep Analysis**: Fetches and parses full transaction details (RPC) to calculate net token changes and precise buy/sell amounts.
@@ -22,20 +22,24 @@ A high-performance Rust application that monitors **Raydium V4** swaps on the So
 
 <img src="assets/TelegramBot.png" alt="Telegram Bot Alert" width="400"/>
 
-## 🛠 Tech Stack
+### Terminal Output
+
+![Terminal Logs](assets/Logs.png)
+
+## Tech Stack
 
 - **Core**: Rust (Tokio Runtime)
 - **Blockchain**: `solana-client`, `solana-sdk`
 - **Database**: PostgreSQL, `sqlx` (Async)
 - **Notifications**: `teloxide` (Telegram Bot API)
 
-## 📋 Prerequisites
+## Prerequisites
 
-- Rust Toolchain (latest stable)
-- PostgreSQL Server
-- Solana RPC Endpoint (HTTP & WSS) created via Helius/Alchemy/QuickNode etc. (Mainnet-beta public RPCs may be rate-limited)
+- Rust Toolchain (latest stable) : [Rust Lang](https://rust-lang.org/)
+- PostgreSQL Server: [PostgreSQL](https://www.postgresql.org/)
+- Solana RPC Endpoint (HTTP & WSS) [[Mainnet-beta public RPCs may be rate-limited](https://api.mainnet-beta.solana.com/)]
 
-## 🚀 Getting Started
+## Getting Started
 
 ### 1. Configuration
 
@@ -54,7 +58,3 @@ The application handles database schema migration automatically on startup.
 ```bash
 cargo run
 ```
-
-### Terminal Output
-
-![Terminal Logs](assets/Logs.png)
