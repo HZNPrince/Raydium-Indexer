@@ -1,4 +1,4 @@
-# 🚀 DEX Tracker
+#  🚀 DEX Tracker | Raydium Indexer
 
 A high-performance Rust application that monitors **Raydium V4** swaps on the Solana blockchain in real-time. It detects trades, parses token balance changes, persists data to **PostgreSQL**, and sends instant alerts via **Telegram**.
 
